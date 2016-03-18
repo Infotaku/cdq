@@ -22,9 +22,12 @@
 #   MyEntity.last_week.where(:created_by => john)
 #
 class CDQManagedObject < CoreDataQueryManagedObjectBase
+  include MotionSupport::Callbacks
 
   extend CDQ
   include CDQ
+
+  define_callbacks :initialize, :update, :destroy
 
   class << self
 
@@ -54,6 +57,23 @@ class CDQManagedObject < CoreDataQueryManagedObjectBase
 
     def new(*args)
       cdq.new(*args)
+    end
+
+    {
+      initialize: [:after],
+      update: [:before, :around, :after],
+      destroy: [:before, :around, :after]
+    }
+    .each_pair do |event, allowed_kinds|
+      allowed_kinds.each do |kind|
+        define_method :"#{kind}_#{event}", ->(*args, &block) do
+          if block_given?
+            set_callback event, kind, *args, &block
+          else
+            set_callback event, kind, *args, &block
+          end
+        end
+      end
     end
 
     # Pass any unknown methods on to cdq.
@@ -100,20 +120,36 @@ class CDQManagedObject < CoreDataQueryManagedObjectBase
   end
 
   def update(args)
-    args.each do |k,v|
-      if respond_to?("#{k}=")
-        self.send("#{k}=", v)
-      else
-        raise UnknownAttributeError.new("#{self.class} does not respond to `#{k}=`")
-      end
-    end if args.is_a?(Hash)
+    run_callbacks :update do
+      args.each do |k,v|
+        write_attribute(k, v)
+      end if args.is_a?(Hash)
+    end
   end
 
   # Register this object for destruction with the current context.  Will not
   # actually be removed until the context is saved.
   #
   def destroy
-    managedObjectContext.deleteObject(self)
+    run_callbacks :destroy do
+      managedObjectContext.deleteObject(self)
+    end
+  end
+
+  def new_record?
+    objectID.isTemporaryID
+  end
+
+  def write_attribute(attr_name, value)
+    if respond_to?("#{attr_name}=")
+      self.send("#{attr_name}=", value)
+    else
+      raise UnknownAttributeError.new("#{self.class} does not respond to `#{attr_name}=`")
+    end
+  end
+
+  def read_attribute(attr_name)
+    self.send(attr_name)
   end
 
   def inspect

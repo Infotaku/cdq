@@ -1,3 +1,10 @@
+GIT
+  remote: git://github.com/Infotaku/motion-support.git
+  revision: 25a39217ab45db731a8e0124ffe126fcddacd8a0
+  specs:
+    motion-support (0.3.0)
+      motion-require (>= 0.0.6)
+
 PATH
   remote: .
   specs:
@@ -8,7 +15,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.2.3)
+    activesupport (4.2.6)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
@@ -17,10 +24,11 @@ GEM
     builder (3.2.2)
     i18n (0.7.0)
     json (1.8.3)
-    minitest (5.7.0)
+    minitest (5.8.4)
+    motion-require (0.2.0)
     motion-stump (0.3.2)
     motion-yaml (1.4)
-    plist (3.1.0)
+    plist (3.2.0)
     rake (10.4.2)
     ruby-xcdm (0.0.9)
       activesupport (~> 4.1)
@@ -36,4 +44,8 @@ PLATFORMS
 DEPENDENCIES
   cdq!
   motion-stump
+  motion-support!
   rake
+
+BUNDLED WITH
+   1.11.2

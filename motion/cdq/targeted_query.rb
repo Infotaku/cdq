@@ -164,8 +164,12 @@ module CDQ #:nodoc:
     # the newly-created entity.  Does not save the context.
     #
     def new(opts = {})
-      @target_class.alloc.initWithEntity(@entity_description, insertIntoManagedObjectContext: context).tap do |entity|
-        opts.each { |k, v| entity.send("#{k}=", v) }
+      entity = @target_class.alloc.initWithEntity(@entity_description, insertIntoManagedObjectContext: context)
+
+      entity.run_callbacks :initialize do
+        entity.tap do |entity|
+          opts.each { |k, v| entity.send("#{k}=", v) }
+        end
       end
     end
 

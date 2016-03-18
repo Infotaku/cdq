@@ -16,6 +16,7 @@ require 'cdq'
 require 'motion-stump'
 require 'ruby-xcdm'
 require 'motion-yaml'
+require 'motion-support'
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
